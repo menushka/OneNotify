@@ -1,9 +1,9 @@
-Package: ca.menushka.keepnotifications
-Name: KeepNotifications
+Package: ca.menushka.onenotify
+Name: OneNotify
 Depends: mobilesubstrate
-Version: 0.0.1
+Version: 1.0.0
 Architecture: iphoneos-arm
-Description: An awesome MobileSubstrate tweak!
+Description: Keep all your notifications in one persistent list on your lockscreen without having to swipe to view them.
 Maintainer: Menushka Weeratunga
 Author: Menushka Weeratunga
 Section: Tweaks
