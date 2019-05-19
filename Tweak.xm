@@ -23,6 +23,7 @@ NCNotificationListCollectionView *collectionView;
 
 %end
 
+%group HideNotificationCenter
 %hook NCNotificationCombinedListViewController
 
 -(CGSize)collectionView:(id)arg1 layout:(id)arg2 referenceSizeForHeaderInSection:(long long)arg3 {
@@ -48,6 +49,17 @@ NCNotificationListCollectionView *collectionView;
 }
 
 %end
+%end
+
+%group HideNoOlderNotifications
+%hook NCNotificationListSectionRevealHintView
+
+- (void)layoutSubviews {
+	return;
+}
+
+%end
+%end
 
 %hook SBScreenWakeAnimationController
 
@@ -60,3 +72,35 @@ NCNotificationListCollectionView *collectionView;
 }
 
 %end
+
+%ctor {
+	@autoreleasepool {
+		%init;
+
+		BOOL hideTextNotificationCenter = YES;
+		BOOL hideTextNoOlderNotifications = YES;
+
+		NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/ca.menushka.onenotify.preferences.plist"];
+		if (prefs) {
+			id hideTextNotificationCenterValue = [prefs valueForKey: @"hideTextNotificationCenter"];
+			if (hideTextNotificationCenterValue) {
+				hideTextNotificationCenter = [hideTextNotificationCenterValue boolValue];
+			} else {
+				hideTextNotificationCenter = YES;
+			}
+
+			id hideTextNoOlderNotificationsValue = [prefs valueForKey: @"hideTextNoOlderNotifications"];
+			if (hideTextNoOlderNotificationsValue) {
+				hideTextNoOlderNotifications = [hideTextNoOlderNotificationsValue boolValue];
+			} else {
+				hideTextNoOlderNotifications = YES;
+			}
+		}
+
+		HBLogDebug(@"hideTextNotificationCenter: %@", hideTextNotificationCenter ? @"YES" : @"NO");
+		HBLogDebug(@"hideTextNoOlderNotifications: %@", hideTextNoOlderNotifications ? @"YES" : @"NO");
+
+		if (hideTextNotificationCenter) %init(HideNotificationCenter);
+		if (hideTextNoOlderNotifications) %init(HideNoOlderNotifications);
+	}
+}

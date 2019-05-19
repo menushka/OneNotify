@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>items</key>
+	<array>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>defaults</key>
+			<string>ca.menushka.onenotify.preferences</string>
+			<key>key</key>
+			<string>hideTextNotificationCenter</string>
+			<key>default</key>
+			<true/>
+			<key>label</key>
+			<string>Hide &quot;Notification Center&quot; Text</string>
+			<key>PostNotification</key>
+			<string>ca.menushka.onenotify.preferences/ReloadPrefs</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>defaults</key>
+			<string>ca.menushka.onenotify.preferences</string>
+			<key>key</key>
+			<string>hideTextNoOlderNotifications</string>
+			<key>default</key>
+			<true/>
+			<key>label</key>
+			<string>Hide &quot;No Older Notifications&quot; Text</string>
+			<key>PostNotification</key>
+			<string>ca.menushka.onenotify.preferences/ReloadPrefs</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>action</key>
+			<string>respring:</string>
+			<key>label</key>
+			<string>Respring</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>action</key>
+			<string>openUrl:</string>
+			<key>url</key>
+			<string>https://twitter.com/menushkaDev</string>
+			<key>icon</key>
+			<string>twitter.png</string>
+			<key>label</key>
+			<string>Follow me on Twitter</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>action</key>
+			<string>openUrl:</string>
+			<key>url</key>
+			<string>https://menushka.ca/</string>
+			<key>icon</key>
+			<string>website.png</string>
+			<key>label</key>
+			<string>Check out my website</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSButtonCell</string>
+			<key>action</key>
+			<string>openUrl:</string>
+			<key>url</key>
+			<string>https://github.com/menushka/OneNotify</string>
+			<key>icon</key>
+			<string>github.png</string>
+			<key>label</key>
+			<string>Source Code</string>
+		</dict>
+	</array>
+	<key>title</key>
+	<string>OneNotify</string>
+</dict>
+</plist>
