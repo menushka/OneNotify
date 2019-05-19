@@ -14,11 +14,13 @@
 			<key>defaults</key>
 			<string>ca.menushka.onenotify.preferences</string>
 			<key>key</key>
-			<string>notificationCenterTextHide</string>
+			<string>hideTextNotificationCenter</string>
 			<key>default</key>
 			<true/>
 			<key>label</key>
 			<string>Hide &quot;Notification Center&quot; Text</string>
+			<key>PostNotification</key>
+			<string>ca.menushka.onenotify.preferences/ReloadPrefs</string>
 		</dict>
 		<dict>
 			<key>cell</key>
@@ -26,11 +28,13 @@
 			<key>defaults</key>
 			<string>ca.menushka.onenotify.preferences</string>
 			<key>key</key>
-			<string>notOlderNotificationsTextHide</string>
+			<string>hideTextNoOlderNotifications</string>
 			<key>default</key>
 			<true/>
 			<key>label</key>
 			<string>Hide &quot;No Older Notifications&quot; Text</string>
+			<key>PostNotification</key>
+			<string>ca.menushka.onenotify.preferences/ReloadPrefs</string>
 		</dict>
 		<dict>
 			<key>cell</key>
