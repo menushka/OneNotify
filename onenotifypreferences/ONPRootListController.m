@@ -24,4 +24,11 @@
     [t launch];
 }
 
+- (void)reset:(PSSpecifier *)specifier {
+    NSFileManager *manager = [NSFileManager defaultManager];
+    NSError *error = nil;
+    [manager removeItemAtPath:@"/var/mobile/Library/Preferences/ca.menushka.onenotify.preferences.plist" error:&error];
+    [self respring:nil];
+}
+
 @end
