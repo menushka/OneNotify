@@ -20,8 +20,6 @@
 
 NCNotificationListCollectionView *collectionView;
 
-
-BOOL pullToDismissEnabled = YES;
 int pullToDismissAmount = 100;
 BOOL dismiss = NO;
 
@@ -51,33 +49,6 @@ BOOL dismiss = NO;
 	return cell;
 }
 
-- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-	%orig;
-	if (!pullToDismissEnabled) return;
-	if (scrollView.contentOffset.y < -scrollView.contentInset.top - pullToDismissAmount) {
-		if (dismiss) return;
-		dismiss = YES;
-		[self kn_dismissAllNotifications: scrollView];
-	}
-}
-
-- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
-	%orig;
-	if (!pullToDismissEnabled) return;
-	dismiss = NO;
-}
-
-%new
-- (void)kn_dismissAllNotifications:(UIScrollView *)scrollView {
-	UIImpactFeedbackGenerator *myGen = [[UIImpactFeedbackGenerator alloc] initWithStyle:(UIImpactFeedbackStyleHeavy)];
-	[myGen impactOccurred];
-	myGen = NULL;
-
-	float scrollHeight = scrollView.contentOffset.y;
-	[self _clearAllNotificationRequests];
-	scrollView.contentOffset = CGPointMake(0, scrollHeight);
-}
-
 %end
 
 %hook NCNotificationListHeaderTitleView
@@ -94,6 +65,37 @@ BOOL dismiss = NO;
 
 - (void)layoutSubviews {
 	return;
+}
+
+%end
+%end
+
+%group PullToDismiss
+%hook NCNotificationCombinedListViewController
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+	%orig;
+	if (scrollView.contentOffset.y < -scrollView.contentInset.top - pullToDismissAmount) {
+		if (dismiss) return;
+		dismiss = YES;
+		[self kn_dismissAllNotifications: scrollView];
+	}
+}
+
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
+	%orig;
+	dismiss = NO;
+}
+
+%new
+- (void)kn_dismissAllNotifications:(UIScrollView *)scrollView {
+	UIImpactFeedbackGenerator *myGen = [[UIImpactFeedbackGenerator alloc] initWithStyle:(UIImpactFeedbackStyleHeavy)];
+	[myGen impactOccurred];
+	myGen = NULL;
+
+	float scrollHeight = scrollView.contentOffset.y;
+	[self _clearAllNotificationRequests];
+	scrollView.contentOffset = CGPointMake(0, scrollHeight);
 }
 
 %end
@@ -117,6 +119,7 @@ BOOL dismiss = NO;
 
 		BOOL hideTextNotificationCenter = YES;
 		BOOL hideTextNoOlderNotifications = YES;
+		BOOL pullToDismissEnabled = YES;
 
 		NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/ca.menushka.onenotify.preferences.plist"];
 		if (prefs) {
@@ -143,5 +146,6 @@ BOOL dismiss = NO;
 
 		if (hideTextNotificationCenter) %init(HideNotificationCenter);
 		if (hideTextNoOlderNotifications) %init(HideNoOlderNotifications);
+		if (pullToDismissEnabled) %init(PullToDismiss);
 	}
 }
