@@ -1,3 +1,4 @@
+#import <Cephei/HBPreferences.h>
 #import <UIKit/UIKit.h>
 
 @interface NCNotificationCombinedListViewController : UIViewController

@@ -2,6 +2,8 @@ include $(THEOS)/makefiles/common.mk
 
 BUNDLE_NAME = OneNotifyPreferences
 OneNotifyPreferences_FILES = ONPRootListController.m
+OneNotifyPreferences_EXTRA_FRAMEWORKS += Cephei
+OneNotifyPreferences_EXTRA_FRAMEWORKS += CepheiPrefs
 OneNotifyPreferences_INSTALL_PATH = /Library/PreferenceBundles
 OneNotifyPreferences_FRAMEWORKS = UIKit
 OneNotifyPreferences_PRIVATE_FRAMEWORKS = Preferences

@@ -1,0 +1,13 @@
+{
+    "GENERAL_HEADER" = "General";
+    "GENERAL_FOOTER" = "General settings for tweak.";
+
+    "PULL_TO_DISMISS_HEADER" = "Pull to Dismiss";
+    "PULL_TO_DISMISS_FOOTER" = "Pull down on the lockscreen to quickly dismiss all notifications.";
+
+    "MISCELLANEOUS_HEADER" = "Miscellaneous";
+    "MISCELLANEOUS_FOOTER" = "General options and settings for the tweak.";
+
+    "SOCIAL_HEADER" = "Social";
+    "SOCIAL_FOOTER" = "Social links and contact info.";
+}
