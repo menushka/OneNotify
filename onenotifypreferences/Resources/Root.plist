@@ -7,6 +7,24 @@
 		<dict>
 			<key>cell</key>
 			<string>PSGroupCell</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>defaults</key>
+			<string>ca.menushka.onenotify.preferences</string>
+			<key>key</key>
+			<string>enabled</string>
+			<key>default</key>
+			<true/>
+			<key>label</key>
+			<string>Enabled</string>
+			<key>PostNotification</key>
+			<string>ca.menushka.onenotify.preferences/ReloadPrefs</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
 			<key>label</key>
 			<string>GENERAL_HEADER</string>
 			<key>footerText</key>
@@ -91,6 +109,80 @@
 			<true/>
 			<key>segmentCount</key>
 			<real>15</real>
+			<key>PostNotification</key>
+			<string>ca.menushka.onenotify.preferences/ReloadPrefs</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>BLOCK_SCREEN_WAKE_HEADER</string>
+			<key>footerText</key>
+			<string>BLOCK_SCREEN_WAKE_FOOTER</string>
+			<key>isStaticText</key>
+			<true/>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>defaults</key>
+			<string>ca.menushka.onenotify.preferences</string>
+			<key>key</key>
+			<string>blockScreenWakeEnabled</string>
+			<key>default</key>
+			<true/>
+			<key>label</key>
+			<string>Enabled</string>
+			<key>PostNotification</key>
+			<string>ca.menushka.onenotify.preferences/ReloadPrefs</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSLinkCell</string>
+			<key>bundle</key>
+			<string>AppList</string>
+			<key>isController</key>
+			<string>1</string>
+			<key>label</key>
+			<string>Select apps</string>
+			<key>ALAllowsSelection</key>
+			<string>1</string>
+			<key>ALSettingsKeyPrefix</key>
+			<string></string>
+			<key>ALSettingsDefaultValue</key>
+			<string>0</string>
+			<key>ALSettingsPath</key>
+			<string>/var/mobile/Library/Preferences/ca.menushka.onenotify.preferences.app.plist</string>
+			<key>ALSingleEnabledMode</key>
+			<false/>
+			<key>ALChangeNotification</key>
+			<string>ca.menushka.onenotify.preferences/ReloadPrefs</string>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSLinkListCell</string>
+            <key>detail</key>
+            <string>PSListItemsController</string>
+			<key>defaults</key>
+			<string>ca.menushka.onenotify.preferences</string>
+			<key>key</key>
+			<string>blockScreenWakeSelectionMode</string>
+			<key>validTitles</key>
+            <array>
+                <string>Blacklist</string>
+                <string>Whitelist</string>
+            </array>
+            <key>validValues</key>
+            <array>
+				<integer>0</integer>
+				<integer>1</integer>
+            </array>
+			<key>default</key>
+			<integer>0</integer>
+			<key>label</key>
+			<string>Selection Mode</string>
+			<key>PostNotification</key>
+			<string>ca.menushka.onenotify.preferences/ReloadPrefs</string>
 		</dict>
 		<dict>
 			<key>cell</key>
