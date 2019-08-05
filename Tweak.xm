@@ -1,4 +1,14 @@
+#import <Cephei/HBPreferences.h>
 #import <UIKit/UIKit.h>
+
+BOOL prefEnabled;
+BOOL prefHideTextNotificationCenter;
+BOOL prefHideTextNoOlderNotifications;
+BOOL prefPullToDismissEnabled;
+BOOL prefPullToDismissAmount;
+BOOL prefBlockScreenWakeEnabled;
+NSMutableDictionary *prefBlockScreenWakeSelectedApps;
+NSInteger prefBlockScreenWakeSelectionMode;
 
 @interface NCNotificationCombinedListViewController : UIViewController
 - (long long)collectionView:(id)arg1 numberOfItemsInSection:(long long)arg2;
@@ -18,10 +28,16 @@
 @property (nonatomic,retain) UILabel *titleLabel;
 @end
 
+@interface NCNotificationRequest
+@property (nonatomic,copy,readonly) NSString * sectionIdentifier;
+@end
+
 NCNotificationListCollectionView *collectionView;
 
 int pullToDismissAmount = 100;
 BOOL dismiss = NO;
+
+%group OneNotifyEnabled
 
 %hook NCNotificationListCollectionView
 
@@ -32,7 +48,22 @@ BOOL dismiss = NO;
 
 %end
 
+%hook SBScreenWakeAnimationController
+
+-(void)prepareToWakeForSource:(long long)arg1 timeAlpha:(double)arg2 statusBarAlpha:(double)arg3 delegate:(id)arg4 target:(id)arg5 completion:(/*^block*/id)arg6 {	
+	dispatch_async(dispatch_get_main_queue(), ^{
+		[collectionView.listDelegate forceNotificationHistoryRevealed: YES animated: NO];
+	});
+
+	%orig;
+}
+
+%end
+
+%end
+
 %group HideNotificationCenter
+
 %hook NCNotificationCombinedListViewController
 
 -(CGSize)collectionView:(id)arg1 layout:(id)arg2 referenceSizeForHeaderInSection:(long long)arg3 {
@@ -58,9 +89,11 @@ BOOL dismiss = NO;
 }
 
 %end
+
 %end
 
 %group HideNoOlderNotifications
+
 %hook NCNotificationListSectionRevealHintView
 
 - (void)layoutSubviews {
@@ -68,9 +101,11 @@ BOOL dismiss = NO;
 }
 
 %end
+
 %end
 
 %group PullToDismiss
+
 %hook NCNotificationCombinedListViewController
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
@@ -99,53 +134,49 @@ BOOL dismiss = NO;
 }
 
 %end
+
 %end
 
-%hook SBScreenWakeAnimationController
+%group BlockScreenWake
 
--(void)prepareToWakeForSource:(long long)arg1 timeAlpha:(double)arg2 statusBarAlpha:(double)arg3 delegate:(id)arg4 target:(id)arg5 completion:(/*^block*/id)arg6 {
-	dispatch_async(dispatch_get_main_queue(), ^{
-		[collectionView.listDelegate forceNotificationHistoryRevealed: YES animated: NO];
-	});
+%hook SBNCScreenController
+-(BOOL)canTurnOnScreenForNotificationRequest:(NCNotificationRequest *)arg1 {
+	if (prefBlockScreenWakeEnabled) {
+		if (prefBlockScreenWakeSelectionMode == 0) {
+			if ([prefBlockScreenWakeSelectedApps objectForKey:arg1.sectionIdentifier] != nil && [[prefBlockScreenWakeSelectedApps objectForKey:arg1.sectionIdentifier] boolValue] == YES) return NO;
+		} else {
+			if ([prefBlockScreenWakeSelectedApps objectForKey:arg1.sectionIdentifier] == nil || [[prefBlockScreenWakeSelectedApps objectForKey:arg1.sectionIdentifier] boolValue] == NO) return NO;
+		}
+	}
+	return %orig;
+}
+%end
 
-	%orig;
+%end
+
+void loadPrefs() {
+	HBPreferences *prefs = [[HBPreferences alloc] initWithIdentifier:@"ca.menushka.onenotify.preferences"];
+
+	prefEnabled = [prefs boolForKey:@"enabled" default:YES];
+	prefHideTextNotificationCenter = [prefs boolForKey:@"hideTextNotificationCenter" default:YES];
+	prefHideTextNoOlderNotifications = [prefs boolForKey:@"hideTextNoOlderNotifications" default:YES];
+	prefPullToDismissEnabled = [prefs boolForKey:@"pullToDismissEnabled" default:YES];
+	prefPullToDismissAmount = [prefs floatForKey:@"pullToDismissAmount" default:100];
+	prefBlockScreenWakeEnabled = [prefs boolForKey:@"blockScreenWakeEnabled" default:YES];
+	prefBlockScreenWakeSelectedApps = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/ca.menushka.onenotify.preferences.app.plist"];
+	prefBlockScreenWakeSelectionMode = [prefs integerForKey:@"blockScreenWakeSelectionMode" default:0];
 }
 
-%end
-
 %ctor {
-	@autoreleasepool {
-		%init;
+	loadPrefs();
+	CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, (CFNotificationCallback)loadPrefs, CFSTR("ca.menushka.onenotify.preferences/ReloadPrefs"), NULL, kNilOptions);
 
-		BOOL hideTextNotificationCenter = YES;
-		BOOL hideTextNoOlderNotifications = YES;
-		BOOL pullToDismissEnabled = YES;
-
-		NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/ca.menushka.onenotify.preferences.plist"];
-		if (prefs) {
-			id hideTextNotificationCenterValue = [prefs valueForKey: @"hideTextNotificationCenter"];
-			if (hideTextNotificationCenterValue) {
-				hideTextNotificationCenter = [hideTextNotificationCenterValue boolValue];
-			}
-
-			id hideTextNoOlderNotificationsValue = [prefs valueForKey: @"hideTextNoOlderNotifications"];
-			if (hideTextNoOlderNotificationsValue) {
-				hideTextNoOlderNotifications = [hideTextNoOlderNotificationsValue boolValue];
-			}
-
-			id pullToDismissEnabledValue = [prefs valueForKey: @"pullToDismissEnabled"];
-			if (pullToDismissEnabledValue) {
-				pullToDismissEnabled = [pullToDismissEnabledValue boolValue];
-			}
-
-			id pullToDismissAmountValue = [prefs valueForKey: @"pullToDismissAmount"];
-			if (pullToDismissAmountValue) {
-				pullToDismissAmount = [pullToDismissAmountValue intValue];
-			}
-		}
-
-		if (hideTextNotificationCenter) %init(HideNotificationCenter);
-		if (hideTextNoOlderNotifications) %init(HideNoOlderNotifications);
-		if (pullToDismissEnabled) %init(PullToDismiss);
+	if (prefEnabled) {
+		%init(OneNotifyEnabled);
+	
+		if (prefHideTextNotificationCenter) %init(HideNotificationCenter);
+		if (prefHideTextNoOlderNotifications) %init(HideNoOlderNotifications);
+		if (prefPullToDismissEnabled) %init(PullToDismiss);
+		if (prefBlockScreenWakeEnabled) %init(BlockScreenWake);
 	}
 }
