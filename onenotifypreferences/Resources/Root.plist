@@ -100,7 +100,7 @@
 			<key>default</key>
 			<integer>100</integer>
 			<key>min</key>
-			<real>50</real>
+			<real>0</real>
 			<key>max</key>
 			<real>200</real>
 			<key>showValue</key>
@@ -108,7 +108,7 @@
 			<key>isSegmented</key>
 			<true/>
 			<key>segmentCount</key>
-			<real>15</real>
+			<real>20</real>
 			<key>PostNotification</key>
 			<string>ca.menushka.onenotify.preferences/ReloadPrefs</string>
 		</dict>
