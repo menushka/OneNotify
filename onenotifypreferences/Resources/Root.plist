@@ -210,60 +210,6 @@
 			<key>label</key>
 			<string>Reset and Respring</string>
 		</dict>
-		<dict>
-			<key>cell</key>
-			<string>PSGroupCell</string>
-			<key>label</key>
-			<string>SOCIAL_HEADER</string>
-			<key>footerText</key>
-			<string>SOCIAL_FOOTER</string>
-			<key>isStaticText</key>
-			<true/>
-		</dict>
-		<dict>
-			<key>big</key>
-			<true/>
-			<key>cellClass</key>
-			<string>HBTwitterCell</string>
-			<key>height</key>
-			<integer>56</integer>
-			<key>label</key>
-			<string>Menushka Weeratunga</string>
-			<key>user</key>
-			<string>menushkaDev</string>
-		</dict>
-		<dict>
-			<key>big</key>
-			<true/>
-			<key>cellClass</key>
-			<string>HBLinkTableCell</string>
-			<key>icon</key>
-			<string>website.png</string>
-			<key>height</key>
-			<integer>56</integer>
-			<key>label</key>
-			<string>Website</string>
-			<key>subtitle</key>
-			<string>menushka.ca</string>
-			<key>url</key>
-			<string>https://menushka.ca/</string>
-		</dict>
-		<dict>
-			<key>big</key>
-			<true/>
-			<key>cellClass</key>
-			<string>HBLinkTableCell</string>
-			<key>icon</key>
-			<string>github.png</string>
-			<key>height</key>
-			<integer>56</integer>
-			<key>label</key>
-			<string>Source</string>
-			<key>subtitle</key>
-			<string>github.com/menushka/OneNotify</string>
-			<key>url</key>
-			<string>https://github.com/menushka/OneNotify</string>
-		</dict>
 	</array>
 	<key>title</key>
 	<string>OneNotify</string>

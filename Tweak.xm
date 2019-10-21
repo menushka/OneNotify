@@ -1,4 +1,4 @@
-#import <Cephei/HBPreferences.h>
+#import <MenushkaPrefs/MenushkaPrefs.h>
 #import <UIKit/UIKit.h>
 
 BOOL prefEnabled;
@@ -50,7 +50,7 @@ BOOL dismiss = NO;
 
 %hook SBScreenWakeAnimationController
 
--(void)prepareToWakeForSource:(long long)arg1 timeAlpha:(double)arg2 statusBarAlpha:(double)arg3 delegate:(id)arg4 target:(id)arg5 completion:(/*^block*/id)arg6 {	
+-(void)prepareToWakeForSource:(long long)arg1 timeAlpha:(double)arg2 statusBarAlpha:(double)arg3 delegate:(id)arg4 target:(id)arg5 completion:(/*^block*/id)arg6 {
 	dispatch_async(dispatch_get_main_queue(), ^{
 		[collectionView.listDelegate forceNotificationHistoryRevealed: YES animated: NO];
 	});
@@ -155,7 +155,7 @@ BOOL dismiss = NO;
 %end
 
 void loadPrefs() {
-	HBPreferences *prefs = [[HBPreferences alloc] initWithIdentifier:@"ca.menushka.onenotify.preferences"];
+	MenushkaPrefs *prefs = [MenushkaPrefs getPrefs:@"ca.menushka.onenotify.preferences"];
 
 	prefEnabled = [prefs boolForKey:@"enabled" default:YES];
 	prefHideTextNotificationCenter = [prefs boolForKey:@"hideTextNotificationCenter" default:YES];
@@ -164,16 +164,14 @@ void loadPrefs() {
 	prefPullToDismissAmount = [prefs floatForKey:@"pullToDismissAmount" default:100];
 	prefBlockScreenWakeEnabled = [prefs boolForKey:@"blockScreenWakeEnabled" default:YES];
 	prefBlockScreenWakeSelectedApps = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/ca.menushka.onenotify.preferences.app.plist"];
-	prefBlockScreenWakeSelectionMode = [prefs integerForKey:@"blockScreenWakeSelectionMode" default:0];
+	prefBlockScreenWakeSelectionMode = [prefs intForKey:@"blockScreenWakeSelectionMode" default:0];
 }
 
 %ctor {
 	loadPrefs();
 	CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, (CFNotificationCallback)loadPrefs, CFSTR("ca.menushka.onenotify.preferences/ReloadPrefs"), NULL, kNilOptions);
-
 	if (prefEnabled) {
 		%init(OneNotifyEnabled);
-	
 		if (prefHideTextNotificationCenter) %init(HideNotificationCenter);
 		if (prefHideTextNoOlderNotifications) %init(HideNoOlderNotifications);
 		if (prefPullToDismissEnabled) %init(PullToDismiss);

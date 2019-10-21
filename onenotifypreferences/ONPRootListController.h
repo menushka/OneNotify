@@ -1,5 +1,5 @@
-#import <CepheiPrefs/HBRootListController.h>
+#import <MenushkaPrefs/MWRootListController.h>
 
-@interface ONPRootListController : HBRootListController
+@interface ONPRootListController : MWRootListController
 
 @end
