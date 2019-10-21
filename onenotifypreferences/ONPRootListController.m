@@ -1,20 +1,18 @@
 #include "ONPRootListController.h"
-#import <Preferences/PSSpecifier.h>
+#import <MenushkaPrefs/MenushkaPrefs.h>
 #import "NSTask.h"
 
 @implementation ONPRootListController
 
 - (NSArray *)specifiers {
 	if (!_specifiers) {
+		[self setSourceUrl:@"https://github.com/menushka/OneNotify"];
+		[self showSource:YES];
+		[self showDonate:YES];
 		_specifiers = [[self loadSpecifiersFromPlistName:@"Root" target:self] retain];
 	}
 
 	return _specifiers;
-}
-
-- (void)openUrl:(PSSpecifier *)specifier {
-    NSString *url = [specifier.properties objectForKey:@"url"];
-	[[UIApplication sharedApplication] openURL:[NSURL URLWithString: url]];
 }
 
 - (void)respring:(PSSpecifier *)specifier {
@@ -25,9 +23,7 @@
 }
 
 - (void)reset:(PSSpecifier *)specifier {
-    NSFileManager *manager = [NSFileManager defaultManager];
-    NSError *error = nil;
-    [manager removeItemAtPath:@"/var/mobile/Library/Preferences/ca.menushka.onenotify.preferences.plist" error:&error];
+    [MenushkaPrefs resetPrefs:@"ca.menushka.onenotify.preferences"];
     [self respring:nil];
 }
 
