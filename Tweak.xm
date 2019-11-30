@@ -1,6 +1,8 @@
 #import <MenushkaPrefs/MenushkaPrefs.h>
 #import <UIKit/UIKit.h>
 
+#define kCFCoreFoundationVersion_iOS_13 1665
+
 BOOL prefEnabled;
 BOOL prefHideTextNotificationCenter;
 BOOL prefHideTextNoOlderNotifications;
@@ -12,7 +14,7 @@ NSInteger prefBlockScreenWakeSelectionMode;
 
 @interface NCNotificationCombinedListViewController : UIViewController
 - (long long)collectionView:(id)arg1 numberOfItemsInSection:(long long)arg2;
-- (void)forceNotificationHistoryRevealed:(bool) arg1 animated:(bool) arg2;
+- (void)forceNotificationHistoryRevealed:(bool)arg1 animated:(bool)arg2;
 - (void)_clearAllNotificationRequests;
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView;
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView;
@@ -32,7 +34,29 @@ NSInteger prefBlockScreenWakeSelectionMode;
 @property (nonatomic,copy,readonly) NSString * sectionIdentifier;
 @end
 
+@interface NCNotificationStructuredSectionList
+- (void)clearAllNotificationRequests;
+@end
+
+@interface CSCombinedListViewController : UIViewController
+- (void)forceNotificationHistoryRevealed:(bool)arg1 animated:(bool)arg2;
+@end
+
+@interface NCNotificationMasterList
+@property (nonatomic,retain) NCNotificationStructuredSectionList * incomingSectionList;
+@property (nonatomic,retain) NCNotificationStructuredSectionList * historySectionList;
+@property (nonatomic,retain) NCNotificationStructuredSectionList * missedSectionList;
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView;
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView;
+- (void)kn_dismissAllNotifications:(UIScrollView *)scrollView;
+@end
+
+@interface NCNotificationStructuredListViewController : UIViewController
+@property (nonatomic, weak) CSCombinedListViewController *delegate;
+@end
+
 NCNotificationListCollectionView *collectionView;
+NCNotificationStructuredListViewController *combinedList;
 
 int pullToDismissAmount = 100;
 BOOL dismiss = NO;
@@ -48,11 +72,29 @@ BOOL dismiss = NO;
 
 %end
 
+%hook NCNotificationStructuredListViewController
+
+-(id)init {
+	combinedList = %orig;
+	return combinedList;
+}
+
+%end
+
 %hook SBScreenWakeAnimationController
 
 -(void)prepareToWakeForSource:(long long)arg1 timeAlpha:(double)arg2 statusBarAlpha:(double)arg3 delegate:(id)arg4 target:(id)arg5 completion:(/*^block*/id)arg6 {
 	dispatch_async(dispatch_get_main_queue(), ^{
 		[collectionView.listDelegate forceNotificationHistoryRevealed: YES animated: NO];
+	});
+
+	%orig;
+}
+
+-(void)prepareToWakeForSource:(long long)arg1 timeAlpha:(double)arg2 statusBarAlpha:(double)arg3 target:(id)arg4 completion:(/*^block*/id)arg5 {
+	dispatch_async(dispatch_get_main_queue(), ^{
+		HBLogDebug(@"%@", combinedList.delegate);
+		[combinedList.delegate forceNotificationHistoryRevealed: YES animated: NO];
 	});
 
 	%orig;
@@ -86,6 +128,22 @@ BOOL dismiss = NO;
 
 - (void)layoutSubviews {
 	return;
+}
+
+%end
+
+%hook NCNotificationListSectionHeaderView
+
+- (void)layoutSubviews {
+	return;
+}
+
+%end
+
+%hook NCNotificationStructuredSectionList
+
+-(double)headerViewHeightForNotificationList:(id)arg1 {
+	return 0;
 }
 
 %end
@@ -135,6 +193,37 @@ BOOL dismiss = NO;
 
 %end
 
+%hook NCNotificationMasterList
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+	%orig;
+	if (scrollView.contentOffset.y < -scrollView.contentInset.top - pullToDismissAmount) {
+		if (dismiss) return;
+		dismiss = YES;
+		[self kn_dismissAllNotifications: scrollView];
+	}
+}
+
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
+	%orig;
+	dismiss = NO;
+}
+
+%new
+- (void)kn_dismissAllNotifications:(UIScrollView *)scrollView {
+	UIImpactFeedbackGenerator *myGen = [[UIImpactFeedbackGenerator alloc] initWithStyle:(UIImpactFeedbackStyleHeavy)];
+	[myGen impactOccurred];
+	myGen = NULL;
+
+	float scrollHeight = scrollView.contentOffset.y;
+	[self.incomingSectionList clearAllNotificationRequests];
+	[self.historySectionList clearAllNotificationRequests];
+	[self.missedSectionList clearAllNotificationRequests];
+	scrollView.contentOffset = CGPointMake(0, scrollHeight);
+}
+
+%end
+
 %end
 
 %group BlockScreenWake
@@ -172,6 +261,13 @@ void loadPrefs() {
 	CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, (CFNotificationCallback)loadPrefs, CFSTR("ca.menushka.onenotify.preferences/ReloadPrefs"), NULL, kNilOptions);
 	if (prefEnabled) {
 		%init(OneNotifyEnabled);
+
+		// if (kCFCoreFoundationVersionNumber > kCFCoreFoundationVersion_iOS_13) {
+		// 	%init(IOS_13)
+		// } else {
+		// 	%init(IOS_12)
+		// }
+
 		if (prefHideTextNotificationCenter) %init(HideNotificationCenter);
 		if (prefHideTextNoOlderNotifications) %init(HideNoOlderNotifications);
 		if (prefPullToDismissEnabled) %init(PullToDismiss);
