@@ -134,6 +134,13 @@ BOOL dismiss = NO;
 
 %hook NCNotificationListSectionHeaderView
 
+-(id)initWithFrame:(CGRect)arg1 {
+	NCNotificationListSectionHeaderView *r = %orig;
+	r.alpha = 0;
+	return r;
+}
+
+
 - (void)layoutSubviews {
 	return;
 }
