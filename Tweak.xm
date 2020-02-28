@@ -1,5 +1,6 @@
 #import <MenushkaPrefs/MenushkaPrefs.h>
 #import <UIKit/UIKit.h>
+#import <SpringBoard/SBLockScreenManager.h>
 
 #define kCFCoreFoundationVersion_iOS_13 1665
 
@@ -8,6 +9,7 @@ BOOL prefHideTextNotificationCenter;
 BOOL prefHideTextNoOlderNotifications;
 BOOL prefPullToDismissEnabled;
 BOOL prefPullToDismissAmount;
+BOOL prefDisableWhenLock;
 BOOL prefBlockScreenWakeEnabled;
 NSMutableDictionary *prefBlockScreenWakeSelectedApps;
 NSInteger prefBlockScreenWakeSelectionMode;
@@ -53,6 +55,20 @@ NSInteger prefBlockScreenWakeSelectionMode;
 
 @interface NCNotificationStructuredListViewController : UIViewController
 @property (nonatomic, weak) CSCombinedListViewController *delegate;
+@end
+
+@interface SBDashBoardViewController : UIViewController
+@property(nonatomic, getter=isAuthenticated) BOOL authenticated;
+@end
+
+@interface CSCoverSheetViewController : UIViewController
+@property(nonatomic, getter=isAuthenticated) BOOL authenticated;
+@end
+
+@interface SBLockScreenManager ()
+@property (readonly, nonatomic) SBDashBoardViewController *dashBoardViewController;
+@property (readonly, nonatomic) CSCoverSheetViewController *coverSheetViewController;
+
 @end
 
 NCNotificationListCollectionView *collectionView;
@@ -175,6 +191,22 @@ BOOL dismiss = NO;
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
 	%orig;
+	if (prefDisableWhenLock) {
+		BOOL isAuth = NO;
+		SBLockScreenManager *manager = [%c(SBLockScreenManager) sharedInstance];
+		if ([manager respondsToSelector:@selector(dashBoardViewController)]) {
+		    // Only iOS 10+
+		    SBDashBoardViewController *dashBoardViewController = manager.dashBoardViewController;
+		    isAuth = [dashBoardViewController isAuthenticated];
+		} else if ([manager respondsToSelector:@selector(coverSheetViewController)]) {
+		    // iOS 13
+		    CSCoverSheetViewController *coverSheetViewController = manager.coverSheetViewController;
+	        isAuth = [coverSheetViewController isAuthenticated];
+		}
+		if (!isAuth) {
+			return;
+		}
+	}
 	if (scrollView.contentOffset.y < -scrollView.contentInset.top - pullToDismissAmount) {
 		if (dismiss) return;
 		dismiss = YES;
@@ -204,6 +236,22 @@ BOOL dismiss = NO;
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
 	%orig;
+	if (prefDisableWhenLock) {
+		BOOL isAuth = NO;
+		SBLockScreenManager *manager = [%c(SBLockScreenManager) sharedInstance];
+		if ([manager respondsToSelector:@selector(dashBoardViewController)]) {
+		    // Only iOS 10+
+		    SBDashBoardViewController *dashBoardViewController = manager.dashBoardViewController;
+		    isAuth = [dashBoardViewController isAuthenticated];
+		} else if ([manager respondsToSelector:@selector(coverSheetViewController)]) {
+		    // iOS 13
+		    CSCoverSheetViewController *coverSheetViewController = manager.coverSheetViewController;
+	        isAuth = [coverSheetViewController isAuthenticated];
+		}
+		if (!isAuth) {
+			return;
+		}
+	}
 	if (scrollView.contentOffset.y < -scrollView.contentInset.top - pullToDismissAmount) {
 		if (dismiss) return;
 		dismiss = YES;
@@ -259,6 +307,7 @@ void loadPrefs() {
 	prefPullToDismissEnabled = [prefs boolForKey:@"pullToDismissEnabled" default:YES];
 	prefPullToDismissAmount = [prefs floatForKey:@"pullToDismissAmount" default:100];
 	prefBlockScreenWakeEnabled = [prefs boolForKey:@"blockScreenWakeEnabled" default:YES];
+	prefDisableWhenLock = [prefs boolForKey:@"disableWhenLock" default:YES];
 	prefBlockScreenWakeSelectedApps = [[NSMutableDictionary alloc] initWithContentsOfFile:@"/var/mobile/Library/Preferences/ca.menushka.onenotify.preferences.app.plist"];
 	prefBlockScreenWakeSelectionMode = [prefs intForKey:@"blockScreenWakeSelectionMode" default:0];
 }
