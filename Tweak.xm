@@ -8,6 +8,7 @@ BOOL prefEnabled;
 BOOL prefHideTextNotificationCenter;
 BOOL prefHideTextNoOlderNotifications;
 BOOL prefPullToDismissEnabled;
+BOOL prefPullToDismissVibrateEnabled;
 BOOL prefPullToDismissAmount;
 BOOL prefDisableWhenLock;
 BOOL prefBlockScreenWakeEnabled;
@@ -74,7 +75,6 @@ NSInteger prefBlockScreenWakeSelectionMode;
 NCNotificationListCollectionView *collectionView;
 NCNotificationStructuredListViewController *combinedList;
 
-int pullToDismissAmount = 100;
 BOOL dismiss = NO;
 
 %group OneNotifyEnabled
@@ -122,43 +122,12 @@ BOOL dismiss = NO;
 
 %group HideNotificationCenter
 
-%hook NCNotificationCombinedListViewController
-
--(CGSize)collectionView:(id)arg1 layout:(id)arg2 referenceSizeForHeaderInSection:(long long)arg3 {
-	if (arg3 == 0 || [self collectionView:self numberOfItemsInSection: 0] == 0) {
-		return CGSizeMake(0, 0);
-	} else {
-		return CGSizeMake(0, 8);
-	}
-}
-
--(id)collectionView:(id)arg1 viewForSupplementaryElementOfKind:(id)arg2 atIndexPath:(id)arg3 {
-	NCNotificationListSectionHeaderView *cell = %orig;
-	[[cell subviews] makeObjectsPerformSelector:@selector(removeFromSuperview)];
-	return cell;
-}
-
-%end
-
-%hook NCNotificationListHeaderTitleView
-
-- (void)layoutSubviews {
-	return;
-}
-
-%end
-
 %hook NCNotificationListSectionHeaderView
 
 -(id)initWithFrame:(CGRect)arg1 {
 	NCNotificationListSectionHeaderView *r = %orig;
-	r.alpha = 0;
+	r.hidden = 1;
 	return r;
-}
-
-
-- (void)layoutSubviews {
-	return;
 }
 
 %end
@@ -207,7 +176,7 @@ BOOL dismiss = NO;
 			return;
 		}
 	}
-	if (scrollView.contentOffset.y < -scrollView.contentInset.top - pullToDismissAmount) {
+	if (scrollView.contentOffset.y < -scrollView.contentInset.top - prefPullToDismissAmount) {
 		if (dismiss) return;
 		dismiss = YES;
 		[self kn_dismissAllNotifications: scrollView];
@@ -221,9 +190,11 @@ BOOL dismiss = NO;
 
 %new
 - (void)kn_dismissAllNotifications:(UIScrollView *)scrollView {
-	UIImpactFeedbackGenerator *myGen = [[UIImpactFeedbackGenerator alloc] initWithStyle:(UIImpactFeedbackStyleHeavy)];
-	[myGen impactOccurred];
-	myGen = NULL;
+	if (prefPullToDismissVibrateEnabled) {
+		UIImpactFeedbackGenerator *myGen = [[UIImpactFeedbackGenerator alloc] initWithStyle:(UIImpactFeedbackStyleHeavy)];
+		[myGen impactOccurred];
+		myGen = NULL;
+	}
 
 	float scrollHeight = scrollView.contentOffset.y;
 	[self _clearAllNotificationRequests];
@@ -252,7 +223,7 @@ BOOL dismiss = NO;
 			return;
 		}
 	}
-	if (scrollView.contentOffset.y < -scrollView.contentInset.top - pullToDismissAmount) {
+	if (scrollView.contentOffset.y < -scrollView.contentInset.top - prefPullToDismissAmount) {
 		if (dismiss) return;
 		dismiss = YES;
 		[self kn_dismissAllNotifications: scrollView];
@@ -266,9 +237,11 @@ BOOL dismiss = NO;
 
 %new
 - (void)kn_dismissAllNotifications:(UIScrollView *)scrollView {
-	UIImpactFeedbackGenerator *myGen = [[UIImpactFeedbackGenerator alloc] initWithStyle:(UIImpactFeedbackStyleHeavy)];
-	[myGen impactOccurred];
-	myGen = NULL;
+	if (prefPullToDismissVibrateEnabled) {
+		UIImpactFeedbackGenerator *myGen = [[UIImpactFeedbackGenerator alloc] initWithStyle:(UIImpactFeedbackStyleHeavy)];
+		[myGen impactOccurred];
+		myGen = NULL;
+	}
 
 	float scrollHeight = scrollView.contentOffset.y;
 	[self.incomingSectionList clearAllNotificationRequests];
@@ -305,6 +278,7 @@ void loadPrefs() {
 	prefHideTextNotificationCenter = [prefs boolForKey:@"hideTextNotificationCenter" default:YES];
 	prefHideTextNoOlderNotifications = [prefs boolForKey:@"hideTextNoOlderNotifications" default:YES];
 	prefPullToDismissEnabled = [prefs boolForKey:@"pullToDismissEnabled" default:YES];
+	prefPullToDismissVibrateEnabled = [prefs boolForKey:@"pullToDismissVibrateEnabled" default:YES];
 	prefPullToDismissAmount = [prefs floatForKey:@"pullToDismissAmount" default:100];
 	prefBlockScreenWakeEnabled = [prefs boolForKey:@"blockScreenWakeEnabled" default:YES];
 	prefDisableWhenLock = [prefs boolForKey:@"disableWhenLock" default:YES];
@@ -317,12 +291,6 @@ void loadPrefs() {
 	CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, (CFNotificationCallback)loadPrefs, CFSTR("ca.menushka.onenotify.preferences/ReloadPrefs"), NULL, kNilOptions);
 	if (prefEnabled) {
 		%init(OneNotifyEnabled);
-
-		// if (kCFCoreFoundationVersionNumber > kCFCoreFoundationVersion_iOS_13) {
-		// 	%init(IOS_13)
-		// } else {
-		// 	%init(IOS_12)
-		// }
 
 		if (prefHideTextNotificationCenter) %init(HideNotificationCenter);
 		if (prefHideTextNoOlderNotifications) %init(HideNoOlderNotifications);

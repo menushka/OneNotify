@@ -86,6 +86,20 @@
 		</dict>
 		<dict>
 			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>defaults</key>
+			<string>ca.menushka.onenotify.preferences</string>
+			<key>key</key>
+			<string>pullToDismissVibrateEnabled</string>
+			<key>default</key>
+			<true/>
+			<key>label</key>
+			<string>Vibrate on Dismiss</string>
+			<key>PostNotification</key>
+			<string>ca.menushka.onenotify.preferences/ReloadPrefs</string>
+		</dict>
+		<dict>
+			<key>cell</key>
 			<string>PSStaticTextCell</string>
 			<key>label</key>
 			<string>Pull Amount to Dismiss</string>
