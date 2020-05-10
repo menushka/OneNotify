@@ -238,6 +238,30 @@
 			<key>label</key>
 			<string>Reset and Respring</string>
 		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>SPECIAL_THANKS_HEADER</string>
+			<key>footerText</key>
+			<string>SPECIAL_THANKS_FOOTER</string>
+			<key>isStaticText</key>
+			<true/>
+		</dict>
+		<dict>
+			<key>id</key>
+			<string>twitter</string>
+			<key>cellClass</key>
+			<string>HBTwitterCell</string>
+			<key>big</key>
+			<true/>
+			<key>height</key>
+			<integer>56</integer>
+			<key>label</key>
+			<string>Suclogger</string>
+			<key>user</key>
+			<string>suclogger</string>
+		</dict>
 	</array>
 	<key>title</key>
 	<string>OneNotify</string>

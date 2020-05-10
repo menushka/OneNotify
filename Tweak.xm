@@ -9,7 +9,7 @@ BOOL prefHideTextNotificationCenter;
 BOOL prefHideTextNoOlderNotifications;
 BOOL prefPullToDismissEnabled;
 BOOL prefPullToDismissVibrateEnabled;
-BOOL prefPullToDismissAmount;
+float prefPullToDismissAmount;
 BOOL prefDisableWhenLock;
 BOOL prefBlockScreenWakeEnabled;
 NSMutableDictionary *prefBlockScreenWakeSelectedApps;

@@ -13,4 +13,7 @@
 
     "SOCIAL_HEADER" = "Social";
     "SOCIAL_FOOTER" = "Social links and contact info.";
+
+    "SPECIAL_THANKS_HEADER" = "Special Thanks";
+    "SPECIAL_THANKS_FOOTER" = "Adding disabled while locked option.";
 }
